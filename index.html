@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0" />
+  <title>Apple Game</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="content">
+    <div class="js-intro intro on">
+      <h1>사과게임</h1>
+      <div class="subBg"></div>
+      <button class="js-startBtn startBtn"></button>
+    </div>
+  
+    <!-- 사과 17 * 10 -->
+    <div class="js-main main">
+      <ul class="js-itemBox itemBox">
+      </ul>
+      <div class="status">
+        <div class="js-score score">0</div>
+        <div class="timerBox">
+          <div class="js-timer timer"></div>
+        </div>
+      </div>
+
+      <div class="js-guideBox guideBox"></div>
+    </div>
+    
+    <div class="js-outro outro">
+      <div class="scoreBox">
+        <p>Score</p>
+        <p class="js-score score">100</p>
+      </div>
+      <button class="js-resetBtn resetBtn out"></button>
+    </div>
+  
+    <button class="js-resetBtn resetBtn"></button>
+    <button class="js-graymodeBtn graymodeBtn"></button>
+    <button class="js-bgmBtn bgmBtn"></button>
+  </div>
+
+  <script src="./script.js"></script>
+</body>
+</html>
