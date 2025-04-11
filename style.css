@@ -197,6 +197,21 @@ p {
   border-radius: 50%;
 }
 
+.main .item.on {
+  border: 4px solid red
+}
+
+.main .item.ani {
+  pointer-events: none;
+  animation: fly 0.5s ease-in-out forwards;
+}
+
+.main .item.off {
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
 .main .status {
   width: 40px;
   height: 100%;
@@ -233,17 +248,15 @@ p {
 
 .guideBox {
   position: absolute;
-  /* border: 4px solid red; */
-  background: blue;
   opacity: 0.4;
-}
-
-.is_darkmode .main {
-  filter: grayscale(60%);
 }
 
 .is_end .status {
   opacity: 0;
+}
+
+.is_end .main {
+  pointer-events: none;
 }
 
 /* outro */
@@ -285,4 +298,14 @@ p {
   height: 80px;
   background: var(--deepGreen);
   font-size: 40px;
+}
+
+/* keyframes */
+@keyframes fly {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-100px);
+  }
 }

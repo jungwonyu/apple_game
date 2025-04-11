@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const CLA_ON = 'on';
   const CLA_OFF = 'off';
+  const CLA_ANI = 'ani';
   const CLA_IS_DARKMODE = 'is_darkmode';
   const CLA_IS_PLAYING = 'is_playing';
   const CLA_IS_END = 'is_end';
@@ -21,12 +22,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const resetBtns = gets('.js-resetBtn');
   const bgmBtn = get('.js-bgmBtn');
   const graymodeBtn = get('.js-graymodeBtn'); 
+  const mainScore = get('.js-main .score');
+  const outroScore = get('.js-outro .score');
 
   const bgm = new Audio('./asset/mp3/bgm.mp3');
   bgm.loop = true;
 
   let timerInterval;
-  let dragging = false;
+  let selectedList = [];
   bgm.stop = () => {
     bgm.pause();
     bgm.currentTime = 0;
@@ -49,20 +52,77 @@ document.addEventListener("DOMContentLoaded", () => {
     guideBox.style.left = `${main.startDrag.x}px`;
 
     const move = (event) => {
-      const calcWidth = Math.abs(event.clientX - main.startDrag.x);
-      const calcHeight = Math.abs(event.clientY - main.startDrag.y);
-      // const calcTop = 
-      // const calcLeft = 
+      const calcTop = Math.min(event.clientY, main.startDrag.y);
+      const calcLeft = Math.min(event.clientX, main.startDrag.x);
+      const calcRight = Math.max(event.clientX, main.startDrag.x);
+      const calcBottom = Math.max(event.clientY, main.startDrag.y);
+      guideBox.style.top = `${calcTop}px`;
+      guideBox.style.left = `${calcLeft}px`;
+      guideBox.style.width = `${calcRight - calcLeft}px`;
+      guideBox.style.height = `${calcBottom - calcTop}px`;
 
-      guideBox.style.width = `${calcWidth}px`
-      guideBox.style.height = `${calcHeight}px`;
-      // guideBox.style.top = `${calcTop}px`
-      // guideBox.style.left = `${calcLeft}px`;
+      const items = gets('.item:not(.off)', itemBox);
+      const selectedItems = items.filter((item) => {
+        const itemRect = item.getBoundingClientRect();
+        const guideBoxRect = guideBox.getBoundingClientRect();
+
+        return !(
+          itemRect.right < guideBoxRect.left ||
+          itemRect.left > guideBoxRect.right ||
+          itemRect.bottom < guideBoxRect.top ||
+          itemRect.top > guideBoxRect.bottom
+        );
+        }
+      );
+
+      items.forEach((item) => item.classList.remove(CLA_ON));
+      selectedItems.forEach((item) => item.classList.add(CLA_ON));
+
+      const sum = selectedItems.reduce((acc, item) => {
+        const num = parseInt(item.innerText);
+        return acc + num;
+      }, 0);
+
+      if (sum === 10) {
+        guideBox.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
+      } else {
+        guideBox.style.backgroundColor = 'rgba(0, 255, 0, 0.5)';
+      }
+
+      selectedList = selectedItems;
     };
 
     const up = () => {
       main.removeEventListener('mousemove', move);
       main.removeEventListener('mouseup', up);
+
+      const items = gets('.item', itemBox);
+      items.forEach((item) => {
+        item.classList.remove(CLA_ON);
+      });
+
+      if (selectedList.length > 0) {
+        const sum = selectedList.reduce((acc, item) => {
+          const num = parseInt(item.innerText);
+          return acc + num;
+        }, 0);
+
+        if (sum === 10) {
+          selectedList.forEach(async (item) => {
+            item.classList.add(CLA_ANI);
+            await new Promise((resolve) => {
+              item.addEventListener('animationend', () => {
+                item.classList.add(CLA_OFF);
+                resolve();
+              }, { once: true });
+            });
+          });
+
+          const length = selectedList.length;
+          mainScore.innerText = parseInt(mainScore.innerText) + length;
+          selectedList = [];
+        } 
+      }
 
       guideBox.style.width = `0px`
       guideBox.style.height = `0px`;
@@ -75,6 +135,13 @@ document.addEventListener("DOMContentLoaded", () => {
     main.addEventListener('mouseleave', up);
   });
 
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
   function startGame() {
     createItem();
     setTimer();
@@ -84,16 +151,20 @@ document.addEventListener("DOMContentLoaded", () => {
     outro.classList.add(CLA_ON);
     firstDiv.classList.remove(CLA_IS_PLAYING);
     firstDiv.classList.add(CLA_IS_END);
+    outroScore.innerText = mainScore.innerText;
   }
 
   function createItem() {
-    for (let i = 0; i < 170; i++) {
+    const numbers = Array.from({ length: 170 }, (_, i) => (i % 9) + 1);
+    
+    shuffle(numbers);
+    
+    numbers.forEach((num) => {
       const li = document.createElement('li');
       li.classList.add('item');
       itemBox.appendChild(li);
-      const num = Math.floor(Math.random() * 9) + 1;
       li.innerText = num;
-    }
+    });    
   }
 
   function setTimer() {
@@ -127,6 +198,8 @@ document.addEventListener("DOMContentLoaded", () => {
     main.classList.remove(CLA_ON);
     outro.classList.remove(CLA_ON);
     intro.classList.add(CLA_ON);
+    mainScore.innerText = 0;
+    selectedList = [];
     gets('li').forEach((el) => el.remove());
   }
 
