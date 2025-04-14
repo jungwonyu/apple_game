@@ -26,10 +26,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const outroScore = get('.js-outro .score');
 
   const bgm = new Audio('./asset/mp3/bgm.mp3');
-  bgm.loop = true;
+  const correctColor = 'rgba(255, 0, 0, 0.5)';
+  const incorrectColor = 'rgba(0, 255, 0, 0.5)';
 
   let timerInterval;
   let selectedList = [];
+  bgm.loop = true;
   bgm.stop = () => {
     bgm.pause();
     bgm.currentTime = 0;
@@ -37,103 +39,94 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 버튼
   startBtn.addEventListener('click', start);
-  for (const resetBtn of resetBtns) resetBtn.addEventListener('click', reset);
   bgmBtn.addEventListener('click', setBgm);
   graymodeBtn.addEventListener('click', setDarkmode);
-
-  // 사과
-  main.addEventListener('mousedown', (event) => {
-    main.startDrag = {
-      x: event.x,
-      y: event.y,
-    }
-
-    guideBox.style.top = `${main.startDrag.y}px`;
-    guideBox.style.left = `${main.startDrag.x}px`;
-
-    const move = (event) => {
-      const calcTop = Math.min(event.clientY, main.startDrag.y);
-      const calcLeft = Math.min(event.clientX, main.startDrag.x);
-      const calcRight = Math.max(event.clientX, main.startDrag.x);
-      const calcBottom = Math.max(event.clientY, main.startDrag.y);
-      guideBox.style.top = `${calcTop}px`;
-      guideBox.style.left = `${calcLeft}px`;
-      guideBox.style.width = `${calcRight - calcLeft}px`;
-      guideBox.style.height = `${calcBottom - calcTop}px`;
-
-      const items = gets('.item:not(.off)', itemBox);
-      const selectedItems = items.filter((item) => {
-        const itemRect = item.getBoundingClientRect();
-        const guideBoxRect = guideBox.getBoundingClientRect();
-
-        return !(
-          itemRect.right < guideBoxRect.left ||
-          itemRect.left > guideBoxRect.right ||
-          itemRect.bottom < guideBoxRect.top ||
-          itemRect.top > guideBoxRect.bottom
-        );
-        }
-      );
-
-      items.forEach((item) => item.classList.remove(CLA_ON));
-      selectedItems.forEach((item) => item.classList.add(CLA_ON));
-
-      const sum = selectedItems.reduce((acc, item) => {
-        const num = parseInt(item.innerText);
-        return acc + num;
-      }, 0);
-
-      if (sum === 10) {
-        guideBox.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
-      } else {
-        guideBox.style.backgroundColor = 'rgba(0, 255, 0, 0.5)';
-      }
-
-      selectedList = selectedItems;
-    };
-
-    const up = () => {
-      main.removeEventListener('mousemove', move);
-      main.removeEventListener('mouseup', up);
-
-      const items = gets('.item', itemBox);
-      items.forEach((item) => {
-        item.classList.remove(CLA_ON);
-      });
-
-      if (selectedList.length > 0) {
-        const sum = selectedList.reduce((acc, item) => {
-          const num = parseInt(item.innerText);
-          return acc + num;
-        }, 0);
-
-        if (sum === 10) {
-          selectedList.forEach(async (item) => {
-            item.classList.add(CLA_ANI);
-            await new Promise((resolve) => {
-              item.addEventListener('animationend', () => {
-                item.classList.add(CLA_OFF);
-                resolve();
-              }, { once: true });
-            });
-          });
-
-          const length = selectedList.length;
-          mainScore.innerText = parseInt(mainScore.innerText) + length;
-          selectedList = [];
-        } 
-      }
-
-      guideBox.style.width = `0px`
-      guideBox.style.height = `0px`;
-      guideBox.style.top = `0px`;
-      guideBox.style.left = `0px`;
-    };
-
-    main.addEventListener('mousemove', move); 
+  for (const resetBtn of resetBtns) resetBtn.addEventListener('click', reset);
+  main.addEventListener('mousedown', (event) => handleMouseDown(event));
+  main.addEventListener('touchstart', (event) => handleMouseDown(event.touches[0]));
+  
+  function handleMouseDown(event) {
+    main.startDrag = { x: event.clientX, y: event.clientY };
+  
+    initGuideBox();
+  
+    const move = (event) => handleMouseMove(event);
+    const touchMove = (event) => handleMouseMove(event.touches[0]); // 터치 이동
+    const up = () => handleMouseUp(move, up);
+    const touchEnd = () => handleMouseUp(touchMove, touchEnd); // 터치 종료
+  
+    main.addEventListener('mousemove', move);
+    main.addEventListener('touchmove', touchMove); // 터치 이동 이벤트 추가
     main.addEventListener('mouseup', up);
+    main.addEventListener('touchend', touchEnd); // 터치 종료 이벤트 추가
     main.addEventListener('mouseleave', up);
-  });
+  }
+  
+  function handleMouseMove(event) {
+    const topBoundary = Math.min(event.clientY, main.startDrag.y);
+    const bottomBoundary = Math.max(event.clientY, main.startDrag.y);
+    const leftBoundary = Math.min(event.clientX, main.startDrag.x);
+    const rightBoundary = Math.max(event.clientX, main.startDrag.x);
+    const width = rightBoundary - leftBoundary;
+    const height = bottomBoundary - topBoundary;
+  
+    guideBox.style.width = `${width}px`;
+    guideBox.style.height = `${height}px`;
+    guideBox.style.transform = `translate3d(${leftBoundary}px, ${topBoundary}px, 0)`;
+  
+    const selectedItems = gets('.item:not(.off)', itemBox).filter((item) => {
+      const itemRect = item.getBoundingClientRect();
+      const guideBoxRect = guideBox.getBoundingClientRect();
+  
+      const isOverlapping = !(
+        itemRect.right < guideBoxRect.left ||
+        itemRect.left > guideBoxRect.right ||
+        itemRect.bottom < guideBoxRect.top ||
+        itemRect.top > guideBoxRect.bottom
+      );
+  
+      return isOverlapping;
+    });
+  
+    const sum = selectedItems.reduce((acc, item) => {
+      const num = parseInt(item.innerText);
+      return acc + num;
+    }, 0);
+  
+    if (sum === 10) {
+      guideBox.style.backgroundColor = correctColor;
+      selectedList = selectedItems;
+    } else {
+      guideBox.style.backgroundColor = incorrectColor;
+      selectedList = [];
+    }
+  }
+  
+  function handleMouseUp(move, up) {
+    main.removeEventListener('mousemove', move);
+    main.removeEventListener('touchmove', move);
+    main.removeEventListener('mouseup', up);
+    main.removeEventListener('touchend', up);
+  
+    if (selectedList) {
+      selectedList.forEach(async (item) => {
+        item.classList.add(CLA_ANI);
+        item.addEventListener('animationend', () => {
+          item.classList.add(CLA_OFF);
+          selectedList = [];
+        });
+      });
+      setScore(selectedList);
+    }
+    initGuideBox();
+  }
+
+  function initGuideBox() {
+    guideBox.style.width = `0px`
+    guideBox.style.height = `0px`;
+    guideBox.style.top = `0px`;
+    guideBox.style.left = `0px`;
+  }
 
   function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -143,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function startGame() {
-    createItem();
+    createItems();
     setTimer();
   }
 
@@ -154,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
     outroScore.innerText = mainScore.innerText;
   }
 
-  function createItem() {
+  function createItems() {
     const numbers = Array.from({ length: 170 }, (_, i) => (i % 9) + 1);
     
     shuffle(numbers);
@@ -178,6 +171,11 @@ document.addEventListener("DOMContentLoaded", () => {
         endGame();
       }
     }, 100); // 0.1초마다 interval 설정
+  }
+
+  function setScore() {
+    const length = selectedList.length;
+    mainScore.innerText = parseInt(mainScore.innerText) + length;
   }
 
   function start() {
