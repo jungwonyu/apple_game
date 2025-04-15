@@ -16,7 +16,7 @@ export function shuffle(array) {
 // manage BGM
 export class BGM {
   constructor(name) {
-    this.audio = new Audio(`../assets/mp3/${name}.mp3`);
+    this.audio = new Audio(`./mp3/${name}.mp3`);
     this.audio.loop = true;
     this.button = get(`.js-${name}Btn`);
     this.isPaused = true;
