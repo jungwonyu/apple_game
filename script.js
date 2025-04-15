@@ -1,5 +1,5 @@
-import * as CONFIG from '../common/config.js';
-import { get, gets, shuffle, BGM } from '../common/base.js';
+import * as CONFIG from './common/config.js';
+import { get, gets, shuffle, BGM } from './common/base.js';
 
 const firstDiv = get('div');
 const intro = get('.js-intro');
