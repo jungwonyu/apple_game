@@ -3,6 +3,8 @@
 :root {
   --deepGreen: #00cc66;
   --green: #d5f6cd;
+  --deepOrange: #ffbe5c;
+  --orange: #ffeea9;
 }
 
 body {
@@ -48,7 +50,7 @@ p {
   align-items: center;
 
   position: relative;
-  background-color: var(--deepGreen);
+  background-color: var(--deepOrange);
   border-radius: 20px;
   box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.3);
 }
@@ -58,7 +60,7 @@ p {
   width: calc(100% - 80px);
   height: calc(100% - 100px);
 
-  background-color: var(--green);
+  background-color: var(--orange);
   border-radius: 20px;
   box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.3);
 }
@@ -81,7 +83,7 @@ p {
 
 .bgmBtn.off,
 .graymodeBtn.off {
-  background: var(--green);
+  background: var(--orange);
   color: gray;
 }
 
@@ -111,7 +113,7 @@ p {
   pointer-events: auto;
 }
 
-.is_darkmode .main .itemBox {
+.is_gray_mode .main .itemBox {
   filter: grayscale(0.5);
 }
 
@@ -127,25 +129,28 @@ p {
 .intro h1 {
   height: max-content;
   position: absolute;
-  top: 10px;
-  left: 200px;
+  top: 50px;
+  left: 100px;
   font-size: 100px;
-  color: var(--deepGreen);
+  color: var(--deepOrange);
+  transform: rotate(-10deg);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  z-index: 1;
 }
 
 .intro .subBg {
   width: 512px;
   height: 512px;
-  background: url(./asset/image/apple_tree.png) no-repeat center / contain;
+  background: url(./images/tree.png) no-repeat center / contain;
   position: absolute;
   top: 100px;
   right: 120px;
 }
 
 .intro .startBtn {
-  width: 200px;
-  height: 200px;
-  background: url(./asset/image/apple.png) no-repeat center / contain;
+  width: 300px;
+  height: 300px;
+  background: url(./images/bat.png) no-repeat center / contain;
   border: none;
   display: flex;
   justify-content: center;
@@ -158,8 +163,9 @@ p {
 .intro .startBtn::after {
   content: "Play";
   position: absolute;
-  top: 80px;
+  top: 190px;
   font-size: 60px;
+  color: var(--deepOrange);
 }
 
 /* main */
@@ -188,17 +194,21 @@ p {
 }
 
 .main .item {
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   display: flex;
   justify-content: center;
-  align-items: start;
-  background: url(./asset/image/chick.png) no-repeat center / contain;
+  align-items: end;
+  background: url(./images/ghost.png) no-repeat center / contain;
   color: black;
   font-size: 22px;
   font-weight: bold;
-  line-height: 2;
+  line-height: 1.2;
   border-radius: 50%;
+}
+
+.is_gray_mode .main .item {
+  background-image: url(./images/ghost_gray.png);
 }
 
 .main .item.ani {
@@ -235,8 +245,8 @@ p {
 .main .timerBox {
   width: calc(100% - 20px);
   height: 500px;
-  border: 1px solid var(--deepGreen);
-  background: var(--deepGreen);
+  border: 1px solid var(--deepOrange);
+  background: var(--deepOrange);
 }
 
 .main .timer {
@@ -264,7 +274,6 @@ p {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 40px;
   position: absolute;
 }
 
@@ -273,29 +282,28 @@ p {
 }
 
 .outro .scoreBox {
-  width: 250px;
-  height: 250px;
-  background: url(./asset/image/apple.png) no-repeat center / contain;
-
+  width: 350px;
+  height: 350px;
+  background: url(./images/full-moon.png) no-repeat center / contain;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   color: #fff;
-  font-size: 40px;
+  font-size: 60px;
   font-weight: bold;
-  padding-top: 40px;
 }
 
 .outro .scoreBox .score {
   font-size: 70px;
+  color: var(--deepOrange);
 }
 
 .outro .resetBtn {
   border: none;
   width: 200px;
   height: 80px;
-  background: var(--deepGreen);
+  background: var(--deepOrange);
   font-size: 40px;
 }
 
